@@ -15,8 +15,10 @@ public class ContactServiceImpl implements IContactService {
 	//inject the repo
 	@Autowired
 	private ContactRepo repo;
+	
 	@Override
 	public String upsert(Contact contact) {
+		contact.setActiveSw("Y");
 		int id = repo.save(contact).getCid();
 		return "Register the contact with "+id;
 	}
@@ -35,10 +37,25 @@ public class ContactServiceImpl implements IContactService {
 		return null;
 	}
 
-	@Override
+	//code for hard deletion
+	/*@Override
 	public String deleteById(int id) {
 		repo.deleteById(id);
 		return "Record deleted Successfully"+id;
-	}
-
+	}*/
+	
+	//code for soft deletion
+		@Override
+		public String deleteById(int id) {
+			Optional<Contact> record = repo.findById(id);
+			
+			if (record.isPresent()) {
+				Contact contact = repo.findById(id).get();
+				contact.setActiveSw("N");
+				repo.save(contact);
+			}
+			return "Record deleted Successfully "+id;
+		}
+		
+	
 }
